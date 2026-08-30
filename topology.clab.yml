@@ -1,0 +1,36 @@
+name: wipro-5g-bgp
+topology:
+  nodes:
+    branch:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/branch/daemons:/etc/frr/daemons
+        - configs/branch/frr.conf:/etc/frr/frr.conf
+    isp1:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/isp1/daemons:/etc/frr/daemons
+        - configs/isp1/frr.conf:/etc/frr/frr.conf
+    isp2:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/isp2/daemons:/etc/frr/daemons
+        - configs/isp2/frr.conf:/etc/frr/frr.conf
+    internet:
+      kind: linux
+      image: frrouting/frr:latest
+      binds:
+        - configs/internet/daemons:/etc/frr/daemons
+        - configs/internet/frr.conf:/etc/frr/frr.conf
+
+  links:
+    # Branch connects to ISP 1 (Primary)
+    - endpoints: ["branch:eth1", "isp1:eth1"]
+    # Branch connects to ISP 2 (Backup)
+    - endpoints: ["branch:eth2", "isp2:eth1"]
+    # Both ISPs connect out to the wider Internet
+    - endpoints: ["isp1:eth2", "internet:eth1"]
+    - endpoints: ["isp2:eth2", "internet:eth2"]
